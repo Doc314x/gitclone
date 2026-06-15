@@ -35,11 +35,28 @@ public partial class MainForm : Form
         Controls.Add(_loginButton);
     }
 
-    private Panel BuildFolderBar()
+    private Control BuildFolderBar()
     {
-        var bar = new Panel { Dock = DockStyle.Top, Height = 28 };
-        var caption = new Label { Text = "Zielordner:", Dock = DockStyle.Left, Width = 80, TextAlign = ContentAlignment.MiddleLeft };
-        var browse = new Button { Text = "Durchsuchen…", Dock = DockStyle.Right, Width = 120 };
+        // A 3-column grid (label | stretching textbox | button) lays out cleanly and shows the path.
+        var table = new TableLayoutPanel
+        {
+            Dock = DockStyle.Top,
+            Height = 36,
+            ColumnCount = 3,
+            RowCount = 1,
+            Padding = new Padding(6, 5, 6, 5)
+        };
+        table.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+        table.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+        table.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+
+        var caption = new Label { Text = "Zielordner:", AutoSize = true, Anchor = AnchorStyles.Left };
+
+        _targetFolder.Dock = DockStyle.None;
+        _targetFolder.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+        _targetFolder.Margin = new Padding(6, 3, 6, 3);
+
+        var browse = new Button { Text = "Durchsuchen…", AutoSize = true, Anchor = AnchorStyles.Right };
         browse.Click += (_, _) =>
         {
             using var dialog = new FolderBrowserDialog { Description = "Zielordner für Backups wählen" };
@@ -48,12 +65,11 @@ public partial class MainForm : Form
             if (dialog.ShowDialog(this) == DialogResult.OK)
                 _targetFolder.Text = dialog.SelectedPath;
         };
-        _targetFolder.Dock = DockStyle.Fill;
-        // Add docked siblings first, the Fill control last so it takes the remaining space.
-        bar.Controls.Add(caption);
-        bar.Controls.Add(browse);
-        bar.Controls.Add(_targetFolder);
-        return bar;
+
+        table.Controls.Add(caption, 0, 0);
+        table.Controls.Add(_targetFolder, 1, 0);
+        table.Controls.Add(browse, 2, 0);
+        return table;
     }
 
     private TabPage BuildBackupTab()
