@@ -30,8 +30,13 @@ Lokal (falls SDK vorhanden): `dotnet test` läuft komplett offline, kein Token n
 - Program.cs nutzt `Application.EnableVisualStyles()` statt
   `ApplicationConfiguration.Initialize()` (nur .NET 6+).
 - `TextBox.PlaceholderText` existiert in net48 NICHT.
-- **Costura.Fody** + `PlatformTarget x64` bündeln alles in eine `GitClone.exe`
-  (native git2-DLL wird per Bitness-Preload mitgeliefert).
+- **Costura.Fody** + `PlatformTarget x64` bündeln alles in eine `GitClone.exe`.
+  Die native git2-DLL wird als EmbeddedResource eingebettet und in Program.cs
+  beim Start nach %TEMP% entpackt + per LoadLibrary geladen.
+- **Native-Version-Falle:** `LibGit2Sharp.NativeBinaries` MUSS exakt die Version
+  sein, die LibGit2Sharp via DllImport erwartet — für 0.30.0 ist das **2.0.322**
+  (`git2-a418d9d.dll`). 2.0.323 (`git2-3f4182d.dll`) führt zu DllNotFound. Bei
+  LibGit2Sharp-Upgrade die passende NativeBinaries-Version aus dem nuspec prüfen.
 
 ## OAuth-Scopes
 `repo` + `delete_repo` + **`workflow`**. Ohne `workflow` lehnt GitHub Pushes ab,
