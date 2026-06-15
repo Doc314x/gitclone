@@ -16,6 +16,7 @@ public partial class MainForm : Form
 
     private readonly ListView _repoList = new() { View = View.Details, CheckBoxes = true, FullRowSelect = true, Dock = DockStyle.Fill };
     private readonly ListView _archiveList = new() { View = View.Details, FullRowSelect = true, Dock = DockStyle.Fill };
+    private readonly CheckBox _deleteAfterBackup = new();
 
     public MainForm()
     {
@@ -83,15 +84,18 @@ public partial class MainForm : Form
         var refresh = new Button { Text = "Repos laden", Dock = DockStyle.Top, Height = 30 };
         refresh.Click += async (_, _) => await LoadReposAsync();
 
-        var backup = new Button { Text = "Sichern", Dock = DockStyle.Bottom, Height = 34 };
-        backup.Click += async (_, _) => await BackupSelectedAsync(deleteAfter: false);
+        var backup = new Button { Text = "Sichern", Dock = DockStyle.Bottom, Height = 36 };
+        backup.Click += async (_, _) => await BackupSelectedAsync(_deleteAfterBackup.Checked);
 
-        var backupDelete = new Button { Text = "Sichern && auf GitHub löschen", Dock = DockStyle.Bottom, Height = 34 };
-        backupDelete.Click += async (_, _) => await BackupSelectedAsync(deleteAfter: true);
+        // Delete is opt-in and off by default: backing up without deleting is the safe default.
+        _deleteAfterBackup.Text = "Nach erfolgreichem Backup auf GitHub löschen (mit Sicherheitsabfrage)";
+        _deleteAfterBackup.Dock = DockStyle.Bottom;
+        _deleteAfterBackup.Height = 26;
+        _deleteAfterBackup.Padding = new Padding(6, 0, 0, 0);
 
         page.Controls.Add(_repoList);
-        page.Controls.Add(backupDelete);
         page.Controls.Add(backup);
+        page.Controls.Add(_deleteAfterBackup);
         page.Controls.Add(refresh);
         return page;
     }

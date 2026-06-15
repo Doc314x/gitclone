@@ -18,15 +18,11 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      - name: Build (net48, uses in-box .NET Framework runtime)
+      - name: Build (net48 + Costura -> single exe)
         run: dotnet build src/GitClone -c Release
 
-      - name: Zip exe + dlls
-        shell: pwsh
-        run: Compress-Archive -Path src/GitClone/bin/Release/net48/* -DestinationPath GitClone-net48.zip
-
-      - name: Create GitHub Release with zip
+      - name: Create GitHub Release with single exe
         uses: softprops/action-gh-release@v2
         with:
-          files: GitClone-net48.zip
+          files: src/GitClone/bin/Release/net48/GitClone.exe
           generate_release_notes: true

@@ -8,12 +8,14 @@ wiederherstellt.
 ## Funktionsweise
 
 - **Login:** OAuth Device Flow — Knopf drücken, im Browser mit 2FA bestätigen.
-  Kein Token wird gespeichert.
+  Kein Token wird gespeichert. Scopes: `repo`, `delete_repo`, `workflow`
+  (letzteres nötig, um Repos mit `.github/workflows/*` wiederherzustellen).
 - **Backup:** Repo-Liste laden, ankreuzen, Zielordner wählen, „Sichern".
   Jedes Repo wird als `Owner__Name.zip` (bare Mirror + `metadata.json`) abgelegt
   und sofort verifiziert.
-- **Löschen:** „Sichern & auf GitHub löschen" entfernt das Repo erst nach
-  bestandener Verifikation und Eingabe des Repo-Namens.
+- **Löschen (optional):** Checkbox „Nach erfolgreichem Backup auf GitHub löschen"
+  ist standardmäßig aus. Ist sie an, wird das Repo erst nach bestandener
+  Verifikation **und** Eingabe des Repo-Namens entfernt.
 - **Restore:** Archiv-Ordner scannen, Repo auswählen, es wird auf GitHub neu
   angelegt und der komplette Mirror zurückgepusht.
 
@@ -38,13 +40,10 @@ dotnet run --project src/GitClone
 
 ## Auslieferung
 
-Zielframework ist **net48** — die App nutzt die eingebaute 4.8-Laufzeit, daher
-eine kleine `GitClone.exe` + ein paar DLLs (~6 MB) statt einer fetten
-self-contained Runtime. Ein `v*`-Tag löst den Release-Workflow aus, der
-`bin/Release/net48/` als `GitClone-net48.zip` an ein GitHub-Release hängt.
-
-> Die Dateien im ZIP müssen zusammenbleiben. Ein optionales Single-File-Bundle
-> (Costura) ist als spätere Variante möglich.
+Zielframework ist **net48** — die App nutzt die eingebaute 4.8-Laufzeit statt
+einer fetten self-contained Runtime. **Costura.Fody** bündelt alle Abhängigkeiten
+(inkl. der nativen Git-DLL) in **eine einzelne `GitClone.exe`**. Ein `v*`-Tag löst
+den Release-Workflow aus, der diese `GitClone.exe` an ein GitHub-Release hängt.
 
 ## Versionierung
 

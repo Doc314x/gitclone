@@ -19,8 +19,8 @@ externes git.exe), GitHub-API via Octokit, Login via OAuth Device Flow
 ## Build & Tests
 Gebaut/getestet wird ausschließlich auf GitHub Actions (kein lokales SDK):
 - `.github/workflows/ci.yml` — build+test bei Push/PR auf `main`.
-- `.github/workflows/release.yml` — baut net48 und hängt `GitClone-net48.zip`
-  (exe + DLLs) bei `v*`-Tag ans Release.
+- `.github/workflows/release.yml` — baut net48 + Costura und hängt die einzelne
+  `GitClone.exe` bei `v*`-Tag ans Release.
 Lokal (falls SDK vorhanden): `dotnet test` läuft komplett offline, kein Token nötig.
 
 ## net48-Besonderheiten
@@ -29,6 +29,13 @@ Lokal (falls SDK vorhanden): `dotnet test` läuft komplett offline, kein Token n
 - `System.Text.Json` als NuGet (net48 hat es nicht eingebaut).
 - Program.cs nutzt `Application.EnableVisualStyles()` statt
   `ApplicationConfiguration.Initialize()` (nur .NET 6+).
+- `TextBox.PlaceholderText` existiert in net48 NICHT.
+- **Costura.Fody** + `PlatformTarget x64` bündeln alles in eine `GitClone.exe`
+  (native git2-DLL wird per Bitness-Preload mitgeliefert).
+
+## OAuth-Scopes
+`repo` + `delete_repo` + **`workflow`**. Ohne `workflow` lehnt GitHub Pushes ab,
+die `.github/workflows/*` enthalten — das brach den Restore solcher Repos.
 
 ## Konventionen
 - SemVer; Version in `src/GitClone/GitClone.csproj`. Tag `vX.Y.Z` löst Release aus.
