@@ -19,7 +19,9 @@ wiederherstellt.
 
 ## Voraussetzungen
 
-- Windows (x64). Kein installiertes Git nötig (LibGit2Sharp ist eingebettet).
+- Windows (x64) mit dem in Windows eingebauten **.NET Framework 4.8** (Standard
+  auf Win10/11/Server). Keine zusätzliche Runtime, kein installiertes Git nötig
+  (LibGit2Sharp wird mitgeliefert).
 - Eine registrierte GitHub-OAuth-App mit aktivem Device Flow; die Client-ID ist
   in `src/GitClone/AppConfig.cs` hinterlegt.
 
@@ -34,15 +36,15 @@ dotnet test
 dotnet run --project src/GitClone
 ```
 
-## Release-Build (single-file .exe)
+## Auslieferung
 
-```bash
-dotnet publish src/GitClone -c Release -r win-x64 --self-contained true \
-  -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true
-```
+Zielframework ist **net48** — die App nutzt die eingebaute 4.8-Laufzeit, daher
+eine kleine `GitClone.exe` + ein paar DLLs (~6 MB) statt einer fetten
+self-contained Runtime. Ein `v*`-Tag löst den Release-Workflow aus, der
+`bin/Release/net48/` als `GitClone-net48.zip` an ein GitHub-Release hängt.
 
-Im Repo passiert das automatisch: ein `v*`-Tag löst den Release-Workflow aus, der
-die `.exe` baut und an ein GitHub-Release hängt.
+> Die Dateien im ZIP müssen zusammenbleiben. Ein optionales Single-File-Bundle
+> (Costura) ist als spätere Variante möglich.
 
 ## Versionierung
 
