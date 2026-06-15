@@ -31,12 +31,17 @@ Zweck: den GitHub-Account auf das Wesentliche reduzieren, ohne Daten zu verliere
   Windows-DPAPI (`ProtectedData`) in `%APPDATA%\GitClone\` gecacht und beim
   nächsten Start wiederverwendet; bei Ablauf/Fehler erneuter Device-Flow.
 
-### Einmalige Voraussetzung
+### Einmalige Voraussetzung (erledigt)
 
 Eine bei GitHub registrierte **OAuth-App** liefert eine `Client-ID`, die fest in
 die .exe kompiliert wird. Benötigte Scopes: `repo` (privat lesen, anlegen,
-Mirror-Push) und `delete_repo` (Löschen). Das Device-Flow-Token dient beim
+Mirror-Push) und `delete_repo` (Löschen) — werden beim Device-Flow-Request
+angefragt, nicht in der App konfiguriert. Das Device-Flow-Token dient beim
 Restore-Push gleichzeitig als HTTPS-Passwort gegenüber GitHub.
+
+- **OAuth-App:** „GitClone" (registriert, *Enable Device Flow* aktiv)
+- **Client ID:** `Ov23lisIxJSnEoMAdIzj` (öffentlich, kein Client Secret nötig —
+  public client)
 
 ## Komponenten
 
