@@ -20,7 +20,10 @@ public partial class MainForm : Form
 
     public MainForm()
     {
-        Text = "GitClone — Lokales GitHub-Repo-Archiv";
+        var v = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+        string version = v is null ? "" : $"v{v.Major}.{v.Minor}.{v.Build}";
+
+        Text = $"GitClone {version} — Lokales GitHub-Repo-Archiv";
         Width = 950;
         Height = 680;
 
@@ -34,6 +37,8 @@ public partial class MainForm : Form
         Controls.Add(_log);
         Controls.Add(BuildFolderBar());
         Controls.Add(_loginButton);
+
+        Log($"GitClone {version} gestartet.");
     }
 
     private Control BuildFolderBar()
