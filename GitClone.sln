@@ -1,0 +1,31 @@
+
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GitClone", "src\GitClone\GitClone.csproj", "{B49FBB1A-51D9-4816-AC27-30F78270CBAC}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GitClone.Tests", "tests\GitClone.Tests\GitClone.Tests.csproj", "{587B09CF-48D2-41F4-BDDF-0614D99AC19F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B49FBB1A-51D9-4816-AC27-30F78270CBAC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B49FBB1A-51D9-4816-AC27-30F78270CBAC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B49FBB1A-51D9-4816-AC27-30F78270CBAC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B49FBB1A-51D9-4816-AC27-30F78270CBAC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{587B09CF-48D2-41F4-BDDF-0614D99AC19F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{587B09CF-48D2-41F4-BDDF-0614D99AC19F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{587B09CF-48D2-41F4-BDDF-0614D99AC19F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{587B09CF-48D2-41F4-BDDF-0614D99AC19F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5F97D3F8-CACB-496C-B127-EEB2C178F222}
+	EndGlobalSection
+EndGlobal
