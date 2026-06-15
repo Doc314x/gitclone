@@ -49,7 +49,7 @@ public partial class MainForm : Form
         };
         table.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
         table.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-        table.ColumnStyles.Add(new ColumnStyle(SizeType.AutoSize));
+        table.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 150));
 
         var caption = new Label { Text = "Zielordner:", AutoSize = true, Anchor = AnchorStyles.Left };
 
@@ -57,20 +57,37 @@ public partial class MainForm : Form
         _targetFolder.Anchor = AnchorStyles.Left | AnchorStyles.Right;
         _targetFolder.Margin = new Padding(6, 3, 6, 3);
 
-        var browse = new Button { Text = "Durchsuchen…", AutoSize = true, Anchor = AnchorStyles.Right };
-        browse.Click += (_, _) =>
-        {
-            using var dialog = new FolderBrowserDialog { Description = "Zielordner für Backups wählen" };
-            if (!string.IsNullOrWhiteSpace(_targetFolder.Text) && Directory.Exists(_targetFolder.Text))
-                dialog.SelectedPath = _targetFolder.Text;
-            if (dialog.ShowDialog(this) == DialogResult.OK)
-                _targetFolder.Text = dialog.SelectedPath;
-        };
+        var browse = new Button { Text = "Durchsuchen…", Dock = DockStyle.Fill, Margin = new Padding(0, 2, 0, 2) };
+        browse.Click += (_, _) => PickTargetFolder();
 
         table.Controls.Add(caption, 0, 0);
         table.Controls.Add(_targetFolder, 1, 0);
         table.Controls.Add(browse, 2, 0);
         return table;
+    }
+
+    private void PickTargetFolder()
+    {
+        try
+        {
+            Log("Öffne Ordner-Auswahl…");
+            using var dialog = new FolderBrowserDialog
+            {
+                Description = "Zielordner für Backups wählen",
+                ShowNewFolderButton = true
+            };
+            if (!string.IsNullOrWhiteSpace(_targetFolder.Text) && Directory.Exists(_targetFolder.Text))
+                dialog.SelectedPath = _targetFolder.Text;
+
+            var result = dialog.ShowDialog(this);
+            Log($"Ordner-Auswahl: {result}" + (result == DialogResult.OK ? $" → {dialog.SelectedPath}" : ""));
+            if (result == DialogResult.OK)
+                _targetFolder.Text = dialog.SelectedPath;
+        }
+        catch (Exception ex)
+        {
+            Log("Ordner-Auswahl fehlgeschlagen: " + ex.GetType().Name + " — " + ex.Message);
+        }
     }
 
     private TabPage BuildBackupTab()
