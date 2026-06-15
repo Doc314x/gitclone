@@ -18,14 +18,15 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      - name: Publish single-file exe
-        run: >
-          dotnet publish src/GitClone -c Release -r win-x64 --self-contained true
-          -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true
-          -o publish
+      - name: Build (net48, uses in-box .NET Framework runtime)
+        run: dotnet build src/GitClone -c Release
 
-      - name: Create GitHub Release with exe
+      - name: Zip exe + dlls
+        shell: pwsh
+        run: Compress-Archive -Path src/GitClone/bin/Release/net48/* -DestinationPath GitClone-net48.zip
+
+      - name: Create GitHub Release with zip
         uses: softprops/action-gh-release@v2
         with:
-          files: publish/GitClone.exe
+          files: GitClone-net48.zip
           generate_release_notes: true
