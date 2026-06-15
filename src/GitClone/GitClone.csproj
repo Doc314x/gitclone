@@ -8,7 +8,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <AssemblyName>GitClone</AssemblyName>
     <RootNamespace>GitClone</RootNamespace>
-    <Version>0.3.1</Version>
+    <Version>0.3.2</Version>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <!-- Fix to x64 so Costura preloads the matching native git2 binary. -->
     <PlatformTarget>x64</PlatformTarget>
@@ -28,8 +28,19 @@
     <Using Include="System.Drawing" />
   </ItemGroup>
 
+  <!-- Embed the native git2 dll into the exe so the single-file build can extract it at startup. -->
+  <ItemGroup>
+    <EmbeddedResource Include="$(PkgLibGit2Sharp_NativeBinaries)\runtimes\win-x64\native\git2-*.dll">
+      <LogicalName>%(Filename)%(Extension)</LogicalName>
+      <Visible>false</Visible>
+    </EmbeddedResource>
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="LibGit2Sharp" Version="0.30.0" />
+    <PackageReference Include="LibGit2Sharp.NativeBinaries" Version="2.0.323" GeneratePathProperty="true">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
     <PackageReference Include="Octokit" Version="13.0.1" />
     <PackageReference Include="System.Text.Json" Version="8.0.5" />
     <!-- Polyfills records/init/etc. so modern C# compiles against net48. Source-only, no runtime cost. -->
