@@ -27,9 +27,10 @@ Zweck: den GitHub-Account auf das Wesentliche reduzieren, ohne Daten zu verliere
 - **Git-Engine:** LibGit2Sharp (native Bibliothek, in die .exe gebündelt) —
   vollständiger Mirror ohne externes Git.
 - **GitHub-API:** Octokit.NET (offizieller .NET-Client).
-- **Auth:** OAuth **Device Flow**. Das ausgestellte Token wird verschlüsselt per
-  Windows-DPAPI (`ProtectedData`) in `%APPDATA%\GitClone\` gecacht und beim
-  nächsten Start wiederverwendet; bei Ablauf/Fehler erneuter Device-Flow.
+- **Auth:** OAuth **Device Flow**. Das ausgestellte Token wird **nicht
+  gespeichert** — es lebt nur im Arbeitsspeicher der laufenden Sitzung. Bei jedem
+  Start meldet man sich per Knopf neu an (Browser + 2FA). Bewusste Entscheidung:
+  das Tool wird selten benutzt, kein dauerhaftes Token auf der Platte.
 
 ### Einmalige Voraussetzung (erledigt)
 
@@ -49,8 +50,7 @@ Jede Unit hat eine klar abgegrenzte Aufgabe und ist einzeln testbar:
 
 | Unit | Aufgabe | Abhängigkeiten |
 |---|---|---|
-| `DeviceFlowAuth` | OAuth-Device-Flow durchführen, Token zurückgeben | HTTP (github.com/login/device) |
-| `TokenStore` | Token per DPAPI verschlüsselt speichern/laden | `System.Security.Cryptography.ProtectedData` |
+| `DeviceFlowAuthenticator` | OAuth-Device-Flow durchführen, Token (nur im Speicher) zurückgeben | Octokit.Oauth |
 | `GitHubService` | Octokit-Wrapper: `ListRepos`, `GetMetadata`, `CreateRepo`, `DeleteRepo` | Octokit, Token |
 | `GitArchiver` | Mirror-Clone → `metadata.json` schreiben → in `.zip` packen → verifizieren | LibGit2Sharp, Token |
 | `GitRestorer` | `.zip` entpacken → Repo auf GitHub anlegen → alle Refs zurückpushen | LibGit2Sharp, GitHubService |
