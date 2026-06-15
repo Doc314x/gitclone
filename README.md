@@ -1,15 +1,19 @@
 # GitClone
 
 Windows-Tool, das ausgewählte GitHub-Repos **vollständig** lokal als `.zip`-Archiv
-sichert (kompletter Git-Verlauf, alle Branches & Tags), sie nach verifiziertem
-Backup auf GitHub löscht und bei Bedarf aus dem Archiv **zurück nach GitHub**
-wiederherstellt.
+sichert (kompletter Git-Verlauf, alle Branches & Tags), sie **auf Wunsch** nach
+verifiziertem Backup auf GitHub löscht und bei Bedarf aus dem Archiv **zurück nach
+GitHub** wiederherstellt.
 
 ## Funktionsweise
 
 - **Login:** OAuth Device Flow — Knopf drücken, im Browser mit 2FA bestätigen.
   Kein Token wird gespeichert. Scopes: `repo`, `delete_repo`, `workflow`
   (letzteres nötig, um Repos mit `.github/workflows/*` wiederherzustellen).
+  > Bei der **ersten Anmeldung** die App genehmigen. Wurde die App früher mit
+  > weniger Rechten autorisiert, einmal unter
+  > *GitHub → Settings → Authorized OAuth Apps → GitClone → Revoke* zurücksetzen,
+  > damit der neue `workflow`-Scope vergeben wird.
 - **Backup:** Repo-Liste laden, ankreuzen, Zielordner wählen, „Sichern".
   Jedes Repo wird als `Owner__Name.zip` (bare Mirror + `metadata.json`) abgelegt
   und sofort verifiziert.
@@ -41,11 +45,13 @@ dotnet run --project src/GitClone
 ## Auslieferung
 
 Zielframework ist **net48** — die App nutzt die eingebaute 4.8-Laufzeit statt
-einer fetten self-contained Runtime. **Costura.Fody** bündelt alle Abhängigkeiten
-(inkl. der nativen Git-DLL) in **eine einzelne `GitClone.exe`**. Ein `v*`-Tag löst
+einer fetten self-contained Runtime. **Costura.Fody** bündelt die verwalteten
+Abhängigkeiten in **eine einzelne `GitClone.exe`**; die native Git-DLL ist als
+Ressource eingebettet und wird beim Start entpackt und geladen. Ein `v*`-Tag löst
 den Release-Workflow aus, der diese `GitClone.exe` an ein GitHub-Release hängt.
 
 ## Versionierung
 
-SemVer, Tags `vX.Y.Z`. Version steht in `src/GitClone/GitClone.csproj`.
-Releases werden nie gelöscht.
+SemVer, Tags `vX.Y.Z`. Die Version steht in `src/GitClone/GitClone.csproj` und wird
+in der **Titelleiste** sowie beim Start im Log angezeigt. Stabile Releases bleiben
+erhalten; nur defekte Zwischenstände wurden entfernt.

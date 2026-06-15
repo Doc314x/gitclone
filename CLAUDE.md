@@ -41,9 +41,14 @@ Lokal (falls SDK vorhanden): `dotnet test` läuft komplett offline, kein Token n
 ## OAuth-Scopes
 `repo` + `delete_repo` + **`workflow`**. Ohne `workflow` lehnt GitHub Pushes ab,
 die `.github/workflows/*` enthalten — das brach den Restore solcher Repos.
+**Scope-Erweiterung:** GitHub gibt beim Device Flow weiter ein Token mit den
+*früher* genehmigten Scopes aus, solange die App-Autorisierung besteht. Nach einer
+Scope-Änderung muss der Nutzer die App einmal widerrufen (Settings → Authorized
+OAuth Apps → Revoke) und neu einloggen.
 
 ## Konventionen
 - SemVer; Version in `src/GitClone/GitClone.csproj`. Tag `vX.Y.Z` löst Release aus.
+  MainForm liest die Assembly-Version und zeigt sie in Titelleiste + Start-Log.
 - Bei jeder Verhaltensänderung README.md und diese Datei im selben Commit nachführen.
 - Archivformat: `Owner__Name.zip` mit `repo.git/` (bare Mirror) + `metadata.json`.
 
