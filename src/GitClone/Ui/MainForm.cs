@@ -12,7 +12,7 @@ public partial class MainForm : Form
 
     private readonly TextBox _log = new() { Multiline = true, Dock = DockStyle.Bottom, Height = 140, ReadOnly = true, ScrollBars = ScrollBars.Vertical };
     private readonly Button _loginButton = new() { Text = "Login bei GitHub", Dock = DockStyle.Top, Height = 36 };
-    private readonly TextBox _targetFolder = new() { Dock = DockStyle.Top, PlaceholderText = "Zielordner für Backups…" };
+    private readonly TextBox _targetFolder = new() { Dock = DockStyle.Top };
 
     private readonly ListView _repoList = new() { View = View.Details, CheckBoxes = true, FullRowSelect = true, Dock = DockStyle.Fill };
     private readonly ListView _archiveList = new() { View = View.Details, FullRowSelect = true, Dock = DockStyle.Fill };
@@ -38,6 +38,7 @@ public partial class MainForm : Form
     private Panel BuildFolderBar()
     {
         var bar = new Panel { Dock = DockStyle.Top, Height = 28 };
+        var caption = new Label { Text = "Zielordner:", Dock = DockStyle.Left, Width = 80, TextAlign = ContentAlignment.MiddleLeft };
         var browse = new Button { Text = "Durchsuchen…", Dock = DockStyle.Right, Width = 120 };
         browse.Click += (_, _) =>
         {
@@ -48,8 +49,10 @@ public partial class MainForm : Form
                 _targetFolder.Text = dialog.SelectedPath;
         };
         _targetFolder.Dock = DockStyle.Fill;
-        bar.Controls.Add(_targetFolder);
+        // Add docked siblings first, the Fill control last so it takes the remaining space.
+        bar.Controls.Add(caption);
         bar.Controls.Add(browse);
+        bar.Controls.Add(_targetFolder);
         return bar;
     }
 
