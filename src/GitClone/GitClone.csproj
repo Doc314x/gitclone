@@ -18,10 +18,12 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.IO.Compression" />
     <Reference Include="System.IO.Compression.FileSystem" />
+    <Reference Include="System.Net.Http" />
   </ItemGroup>
 
   <ItemGroup>
     <Using Include="System.Windows.Forms" />
+    <Using Include="System.Drawing" />
   </ItemGroup>
 
   <ItemGroup>
