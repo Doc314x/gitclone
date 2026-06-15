@@ -30,6 +30,12 @@ public sealed class GitArchiver
             using (var repo = new Repository(bareDir))
                 stats = GitStats.Compute(repo);
 
+            // Fail fast instead of writing a useless empty zip (e.g. fetch fetched nothing).
+            if (stats.RefCount == 0)
+                throw new InvalidOperationException(
+                    $"Mirror von {info.FullName} enthält keine Branches/Tags — Fetch lieferte nichts " +
+                    "(Zugriffsrecht/Token prüfen).");
+
             var meta = new ArchiveMetadata
             {
                 Owner = info.Owner,
@@ -85,12 +91,18 @@ public sealed class GitArchiver
             using (var repo = new Repository(bareDir))
                 actual = GitStats.Compute(repo);
 
+            // A repo with no branches/tags means the mirror fetch fetched nothing — reject it,
+            // otherwise an empty backup would silently "verify" (0 == 0).
+            if (actual.RefCount == 0)
+                return VerificationResult.Fail(
+                    "Archiv enthält keine Branches/Tags — das Backup ist leer (Mirror-Fetch lieferte nichts).");
+
             if (actual.RefCount != meta.RefCount || actual.CommitCount != meta.CommitCount)
                 return VerificationResult.Fail(
                     $"Inhalt weicht ab: erwartet {meta.RefCount} Refs/{meta.CommitCount} Commits, " +
                     $"gefunden {actual.RefCount}/{actual.CommitCount}.");
 
-            return VerificationResult.Success();
+            return VerificationResult.Success($"Backup verifiziert ({actual.RefCount} Refs, {actual.CommitCount} Commits).");
         }
         catch (Exception ex)
         {

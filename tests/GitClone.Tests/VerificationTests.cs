@@ -1,6 +1,8 @@
 using System.IO.Compression;
+using System.Text.Json;
 using GitClone.Models;
 using GitClone.Services;
+using LibGit2Sharp;
 using Xunit;
 
 namespace GitClone.Tests;
@@ -38,5 +40,28 @@ public class VerificationTests
         var result = new GitArchiver().Verify(zip);
 
         Assert.False(result.Ok);
+    }
+
+    [Fact]
+    public void Verify_FailsForEmptyMirror()
+    {
+        using var fx = new GitTestRepo();
+
+        // Hand-build an archive whose mirror has zero refs and metadata that claims 0/0.
+        string staging = fx.TempDir("empty-stage");
+        Directory.CreateDirectory(staging);
+        Repository.Init(Path.Combine(staging, "repo.git"), isBare: true);
+        File.WriteAllText(
+            Path.Combine(staging, "metadata.json"),
+            JsonSerializer.Serialize(new ArchiveMetadata { Name = "empty", RefCount = 0, CommitCount = 0 }));
+
+        string outDir = fx.TempDir("empty-out");
+        Directory.CreateDirectory(outDir);
+        string zip = Path.Combine(outDir, "empty.zip");
+        ZipFile.CreateFromDirectory(staging, zip, CompressionLevel.Optimal, includeBaseDirectory: false);
+
+        var result = new GitArchiver().Verify(zip);
+
+        Assert.False(result.Ok);  // 0 refs must be rejected, not treated as "0 == 0 OK"
     }
 }

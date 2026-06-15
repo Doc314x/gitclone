@@ -31,8 +31,26 @@ public partial class MainForm : Form
 
         Controls.Add(tabs);
         Controls.Add(_log);
-        Controls.Add(_targetFolder);
+        Controls.Add(BuildFolderBar());
         Controls.Add(_loginButton);
+    }
+
+    private Panel BuildFolderBar()
+    {
+        var bar = new Panel { Dock = DockStyle.Top, Height = 28 };
+        var browse = new Button { Text = "Durchsuchen…", Dock = DockStyle.Right, Width = 120 };
+        browse.Click += (_, _) =>
+        {
+            using var dialog = new FolderBrowserDialog { Description = "Zielordner für Backups wählen" };
+            if (!string.IsNullOrWhiteSpace(_targetFolder.Text) && Directory.Exists(_targetFolder.Text))
+                dialog.SelectedPath = _targetFolder.Text;
+            if (dialog.ShowDialog(this) == DialogResult.OK)
+                _targetFolder.Text = dialog.SelectedPath;
+        };
+        _targetFolder.Dock = DockStyle.Fill;
+        bar.Controls.Add(_targetFolder);
+        bar.Controls.Add(browse);
+        return bar;
     }
 
     private TabPage BuildBackupTab()
@@ -191,6 +209,12 @@ public partial class MainForm : Form
         var entry = (ArchiveEntry)_archiveList.SelectedItems[0].Tag!;
         try
         {
+            Log($"Archiv {entry.Metadata.Name}: {entry.Metadata.RefCount} Refs / {entry.Metadata.CommitCount} Commits.");
+            if (entry.Metadata.RefCount == 0)
+            {
+                Log("Archiv ist leer — Wiederherstellung abgebrochen. Bitte das Backup erneut erstellen.");
+                return;
+            }
             Log($"Lege {entry.Metadata.Name} auf GitHub neu an…");
             var created = await _github.CreateRepoAsync(entry.Metadata);
             Log($"Pushe Mirror nach {created.CloneUrl}…");
