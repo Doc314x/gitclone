@@ -39,6 +39,16 @@ public partial class MainForm : Form
         Controls.Add(_loginButton);
 
         Log($"GitClone {version} gestartet.");
+        Log(Program.NativeStatus);
+    }
+
+    /// <summary>Flattens an exception and its inner exceptions into one readable line.</summary>
+    private static string Describe(Exception ex)
+    {
+        var sb = new System.Text.StringBuilder();
+        for (Exception? e = ex; e is not null; e = e.InnerException)
+            sb.Append((sb.Length > 0 ? "  ◀ " : "") + e.GetType().Name + ": " + e.Message);
+        return sb.ToString();
     }
 
     private Control BuildFolderBar()
@@ -210,7 +220,7 @@ public partial class MainForm : Form
             }
             catch (Exception ex)
             {
-                Log($"{info.FullName}: Fehler — {ex.Message}");
+                Log($"{info.FullName}: Fehler — {Describe(ex)}");
             }
         }
         Log("Backup-Lauf fertig.");
@@ -268,7 +278,7 @@ public partial class MainForm : Form
         }
         catch (Exception ex)
         {
-            Log($"Restore fehlgeschlagen: {ex.Message}");
+            Log($"Restore fehlgeschlagen: {Describe(ex)}");
         }
     }
 }
