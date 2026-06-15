@@ -17,7 +17,11 @@ public sealed class GitTestRepo : IDisposable
         Directory.CreateDirectory(Root);
     }
 
-    /// <summary>Create a bare source repo seeded with 3 commits plus one extra branch and a tag.</summary>
+    /// <summary>
+    /// Create a source repo seeded with 3 commits plus one extra branch and a tag, and return its
+    /// path. It stands in for a GitHub remote: fetching from it yields refs/heads/* and refs/tags/*
+    /// deterministically (a libgit2 bare clone does not reliably populate refs/heads/*).
+    /// </summary>
     public string CreateSourceRepo(string name = "source")
     {
         string workdir = Path.Combine(Root, name + "-work");
@@ -34,11 +38,7 @@ public sealed class GitTestRepo : IDisposable
             repo.CreateBranch("feature");
             repo.ApplyTag("v1.0");
         }
-
-        // Turn the working repo into a bare repo by cloning it bare locally.
-        string barePath = Path.Combine(Root, name + ".git");
-        Repository.Clone(workdir, barePath, new CloneOptions { IsBare = true });
-        return barePath;
+        return workdir;
     }
 
     /// <summary>An empty bare repo that stands in for a freshly-created GitHub repo (restore target).</summary>
