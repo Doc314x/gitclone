@@ -25,14 +25,24 @@ public sealed class GitRestorer
                             r.CanonicalName.StartsWith("refs/tags/"))
                 .Select(r => $"+{r.CanonicalName}:{r.CanonicalName}")
                 .ToList();
-            if (refspecs.Count == 0) return;
+            if (refspecs.Count == 0)
+                throw new InvalidOperationException(
+                    "Das Archiv enthält keine Branches/Tags — nichts zum Wiederherstellen (leeres Backup?).");
 
-            var options = new PushOptions();
+            var pushErrors = new List<string>();
+            var options = new PushOptions
+            {
+                OnPushStatusError = e => pushErrors.Add($"{e.Reference}: {e.Message}")
+            };
             if (!string.IsNullOrEmpty(token) && remoteUrl.StartsWith("http"))
                 options.CredentialsProvider = (_, _, _) =>
                     new UsernamePasswordCredentials { Username = token, Password = "" };
 
             repo.Network.Push(remote, refspecs, options);
+
+            if (pushErrors.Count > 0)
+                throw new InvalidOperationException(
+                    "Push wurde von GitHub abgelehnt: " + string.Join(" | ", pushErrors));
         }
         finally
         {
