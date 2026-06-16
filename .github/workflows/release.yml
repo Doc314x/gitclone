@@ -1,9 +1,12 @@
 name: Release
 
+# Push auf main mit erhöhter csproj-<Version> -> Tag vX.Y.Z + Build + Release (single exe).
+# Idempotent: existiert der Tag schon, passiert nichts. Manuell via workflow_dispatch.
+
 on:
   push:
-    tags:
-      - 'v*'
+    branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -13,16 +16,47 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - uses: actions/setup-dotnet@v4
+      - name: Version aus csproj lesen
+        id: ver
+        shell: pwsh
+        run: |
+          $csproj = Get-ChildItem src/GitClone/*.csproj | Select-Object -First 1
+          [xml]$p = Get-Content $csproj
+          $v = @($p.Project.PropertyGroup.Version | Where-Object { $_ })[0]
+          if (-not $v) { throw "Keine <Version> gefunden" }
+          "tag=v$v" >> $env:GITHUB_OUTPUT
+          Write-Host "Tag=v$v"
+
+      - name: Tag-Existenz prüfen
+        id: check
+        shell: pwsh
+        run: |
+          git fetch --tags --quiet
+          if (git tag --list "${{ steps.ver.outputs.tag }}") {
+            "release=false" >> $env:GITHUB_OUTPUT; Write-Host "Tag existiert -> skip"
+          } else {
+            "release=true" >> $env:GITHUB_OUTPUT; Write-Host "neuer Tag -> Release"
+          }
+
+      - name: .NET SDK
+        if: steps.check.outputs.release == 'true'
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
 
       - name: Build (net48 + Costura -> single exe)
+        if: steps.check.outputs.release == 'true'
         run: dotnet build src/GitClone -c Release
 
-      - name: Create GitHub Release with single exe
+      - name: Release (single exe direkt)
+        if: steps.check.outputs.release == 'true'
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ steps.ver.outputs.tag }}
+          name: ${{ steps.ver.outputs.tag }}
+          target_commitish: ${{ github.sha }}
           files: src/GitClone/bin/Release/net48/GitClone.exe
           generate_release_notes: true
